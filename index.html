@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AssistPro – Assistente Pessoal para Negócios. Gestão de agenda, e-mails, viagens corporativas e despesas para executivos e empresas." />
+  <meta name="keywords" content="assistente pessoal, negócios, gestão executiva, organização corporativa, secretária virtual" />
+  <title>AssistPro | Assistente Pessoal para Negócios</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter (corpo) + Playfair Display (destaque) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+
+  <!-- Configuração de tokens Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            teal:     '#2A9D8F',
+            'teal-dk':  '#1f7268',
+            slate:     '#3D5A6B',
+            'navy-lt': '#3D5A6B',
+          },
+          fontFamily: {
+            sans:    ['Inter', 'sans-serif'],
+            display: ['"Playfair Display"', 'serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ──────────────────────────────────────────
+       Estilos globais e utilitários customizados
+    ────────────────────────────────────────── */
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #ffffff;
+      color: #2d3d3a;
+      margin: 0;
+    }
+
+    /* Foco acessível */
+    :focus-visible {
+      outline: 3px solid #2A9D8F;
+      outline-offset: 3px;
+    }
+
+    /* Redutor de movimento */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    /* ── Cabeçalho ── */
+    #header {
+      background-color: #3D5A6B;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+
+    .nav-link {
+      color: rgba(255,255,255,0.80);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: #ffffff; }
+
+    /* ── Botões ── */
+    .btn-primary {
+      background-color: #2A9D8F;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.55rem 1.35rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.15s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary:hover  { background-color: #1f7268; }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-outline {
+      background-color: transparent;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.875rem;
+      padding: 0.50rem 1.30rem;
+      border-radius: 6px;
+      border: 1.5px solid rgba(255,255,255,0.55);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-outline:hover { border-color: #ffffff; color: #ffffff; }
+
+    /* ── Hero ── */
+    #hero {
+      background: linear-gradient(135deg, #3D5A6B 0%, #2d4455 55%, #1e3040 100%);
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Detalhe decorativo sutil no hero */
+    #hero::after {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(42,157,143,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      left: -80px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(42,157,143,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      background-color: rgba(42,157,143,0.18);
+      border: 1px solid rgba(42,157,143,0.45);
+      color: #a8e6e0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.12;
+      margin-bottom: 1.4rem;
+    }
+    .hero-title span { color: #a8e6e0; }
+
+    .hero-desc {
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      color: rgba(255,255,255,0.72);
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 2.4rem;
+    }
+
+    .hero-btn-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn-hero-primary {
+      background-color: #2A9D8F;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.15s;
+      text-decoration: none;
+    }
+    .btn-hero-primary:hover  { background-color: #1f7268; }
+    .btn-hero-primary:active { transform: scale(0.97); }
+
+    .btn-hero-ghost {
+      background-color: transparent;
+      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.82rem 2rem;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none;
+    }
+    .btn-hero-ghost:hover { border-color: rgba(255,255,255,0.75); color: #ffffff; }
+
+    /* Indicadores estatísticos no hero */
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+    .stat-item { text-align: left; }
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+      margin-top: 0.2rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Seção de Serviços ── */
+    #servicos { padding: 6rem 0; background-color: #f4f7f7; }
+
+    .section-eyebrow {
+      display: block;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #2A9D8F;
+      margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      color: #3D5A6B;
+      text-align: center;
+      line-height: 1.18;
+      margin-bottom: 0.7rem;
+    }
+    .section-subtitle {
+      text-align: center;
+      font-size: 1rem;
+      color: #52666e;
+      max-width: 520px;
+      margin: 0 auto 3.5rem;
+      line-height: 1.7;
+    }
+
+    /* Cards de Serviço */
+    .service-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 2.2rem 1.8rem;
+      border: 1.5px solid #d4e6e4;
+      transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #2A9D8F, #1f7268);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .service-card:hover {
+      box-shadow: 0 12px 40px rgba(61,90,107,0.12);
+      transform: translateY(-5px);
+      border-color: #b0d4d1;
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+
+    .service-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #e0f5f3, #f0fbfa);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.3rem;
+    }
+    .service-icon svg { width: 26px; height: 26px; }
+
+    .service-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #3D5A6B;
+      margin-bottom: 0.65rem;
+    }
+    .service-desc { font-size: 0.9rem; color: #52666e; line-height: 1.65; }
+
+    .service-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2A9D8F;
+      margin-top: 1.1rem;
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+    .service-link:hover { gap: 0.55rem; }
+
+    /* ── Seção Como Funciona ── */
+    #como-funciona { padding: 6rem 0; background-color: #ffffff; }
+
+    .step-item { display: flex; gap: 1.4rem; align-items: flex-start; }
+    .step-number {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      background-color: #2A9D8F;
+      color: #ffffff;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-title { font-size: 1rem; font-weight: 700; color: #3D5A6B; margin-bottom: 0.3rem; }
+    .step-desc { font-size: 0.88rem; color: #52666e; line-height: 1.6; }
+
+    /* ── Rodapé ── */
+    #footer {
+      background-color: #3D5A6B;
+      color: rgba(255,255,255,0.75);
+      padding: 3.5rem 0 1.5rem;
+    }
+    .footer-logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .footer-logo-text span { color: #a8e6e0; }
+    .footer-tagline { font-size: 0.82rem; color: rgba(255,255,255,0.50); margin-top: 0.35rem; }
+
+    .footer-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 1rem;
+    }
+    .footer-link {
+      display: block;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.70);
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      transition: color 0.2s;
+    }
+    .footer-link:hover { color: #ffffff; }
+
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.70);
+      margin-bottom: 0.75rem;
+    }
+    .contact-item svg { flex-shrink: 0; margin-top: 2px; }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.20);
+      color: rgba(255,255,255,0.70);
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+    }
+    .social-btn:hover { border-color: #2A9D8F; background-color: rgba(42,157,143,0.25); color: #ffffff; }
+
+    .footer-divider { border-color: rgba(255,255,255,0.12); margin: 2rem 0 1rem; }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.38); }
+
+    /* ──────────────────────────────────────────
+       CHAT FLUTUANTE
+    ────────────────────────────────────────── */
+    #chat-widget {
+      position: fixed;
+      bottom: 1.8rem;
+      right: 1.8rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Balão do chat */
+    #chat-box {
+      display: none;
+      flex-direction: column;
+      width: 340px;
+      max-height: 480px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.20), 0 4px 16px rgba(0,0,0,0.10);
+      overflow: hidden;
+      border: 1px solid #cce0de;
+      animation: slideUp 0.25s ease-out;
+    }
+    #chat-box.open { display: flex; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Cabeçalho do chat */
+    #chat-header {
+      background: linear-gradient(90deg, #3D5A6B, #2d4455);
+      padding: 1rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-avatar {
+      width: 36px; height: 36px;
+      background-color: #2A9D8F;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .chat-info { flex: 1; margin-left: 0.65rem; }
+    .chat-name { font-size: 0.88rem; font-weight: 600; color: #ffffff; line-height: 1; }
+    .chat-status {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.6);
+      display: flex; align-items: center; gap: 0.3rem; margin-top: 0.25rem;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      background-color: #4ade80;
+      border-radius: 50%;
+    }
+    #chat-close-btn {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.6);
+      padding: 4px; border-radius: 4px;
+      transition: color 0.2s;
+    }
+    #chat-close-btn:hover { color: #ffffff; }
+
+    /* Área de mensagens */
+    #chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      background: #f4f7f7;
+      min-height: 0;
+    }
+    #chat-messages::-webkit-scrollbar { width: 4px; }
+    #chat-messages::-webkit-scrollbar-track { background: transparent; }
+    #chat-messages::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+    .msg {
+      max-width: 82%;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      padding: 0.65rem 0.9rem;
+      border-radius: 12px;
+      word-break: break-word;
+      animation: msgIn 0.18s ease-out;
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .msg-bot {
+      background: #ffffff;
+      color: #2d3d3a;
+      align-self: flex-start;
+      border: 1px solid #cce0de;
+      border-bottom-left-radius: 4px;
+    }
+    .msg-user {
+      background: #2A9D8F;
+      color: #ffffff;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Chips de sugestão rápida */
+    #chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.6rem 1rem 0;
+      background: #f4f7f7;
+    }
+    .chip {
+      background: #e0f5f3;
+      color: #3D5A6B;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      border: 1px solid #b8dbd9;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    .chip:hover { background-color: #3D5A6B; color: #ffffff; border-color: #3D5A6B; }
+
+    /* Input do chat */
+    #chat-input-area {
+      padding: 0.75rem 1rem;
+      background: #ffffff;
+      border-top: 1px solid #d4e6e4;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    #chat-input {
+      flex: 1;
+      border: 1.5px solid #cce0de;
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      color: #2d3d3a;
+      background: #f4f7f7;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #chat-input:focus { border-color: #2A9D8F; background: #ffffff; }
+    #chat-input::placeholder { color: #aaa; }
+
+    #chat-send-btn {
+      background-color: #2A9D8F;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.2s, transform 0.15s;
+    }
+    #chat-send-btn:hover  { background-color: #1f7268; }
+    #chat-send-btn:active { transform: scale(0.93); }
+    #chat-send-btn svg    { width: 17px; height: 17px; color: #fff; }
+
+    /* Botão flutuante de abertura */
+    #chat-toggle-btn {
+      width: 58px; height: 58px;
+      background: linear-gradient(135deg, #2A9D8F, #1f7268);
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(42,157,143,0.45);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    #chat-toggle-btn:hover { transform: scale(1.07); box-shadow: 0 8px 32px rgba(42,157,143,0.55); }
+    #chat-toggle-btn svg   { width: 26px; height: 26px; color: #ffffff; }
+
+    /* Badge de notificação */
+    #chat-badge {
+      position: absolute;
+      top: -2px; right: -2px;
+      width: 18px; height: 18px;
+      background: #4ade80;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #166534;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Indicador de digitação */
+    .typing-dots {
+      display: flex; gap: 4px; align-items: center;
+      padding: 0.65rem 0.9rem;
+    }
+    .typing-dots span {
+      width: 6px; height: 6px;
+      background: #aaa;
+      border-radius: 50%;
+      animation: bounce 1.1s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.18s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40%           { transform: translateY(-6px); }
+    }
+
+    /* ── Menu mobile ── */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+  </style>
+</head>
+
+<body>
+
+  <!-- ════════════════════════════════════════
+       CABEÇALHO
+  ═════════════════════════════════════════ -->
+  <header id="header" role="banner">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+      <!-- Logotipo -->
+      <a href="#" aria-label="AssistPro – página inicial"
+         class="flex items-center gap-2 text-white font-display font-bold text-xl no-underline">
+        <!-- Ícone do logo -->
+        <span aria-hidden="true"
+              class="w-9 h-9 rounded-lg flex items-center justify-center"
+              style="background-color:#2A9D8F;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </span>
+        Assist<span style="color:#a8e6e0;">Pro</span>
+      </a>
+
+      <!-- Navegação – desktop -->
+      <nav aria-label="Navegação principal"
+           class="hidden md:flex items-center gap-8">
+        <a href="#servicos"       class="nav-link">Serviços</a>
+        <a href="#como-funciona"  class="nav-link">Como Funciona</a>
+        <a href="#footer"         class="nav-link">Contato</a>
+      </nav>
+
+      <!-- Botões de acesso – desktop -->
+      <div class="hidden md:flex items-center gap-3">
+        <a href="login.html" class="btn-outline">Login</a>
+        <a href="cadastro.html" class="btn-primary">Cadastro Grátis</a>
+      </div>
+
+      <!-- Botão de menu – mobile -->
+      <button id="mobile-menu-btn" aria-label="Abrir menu" aria-expanded="false"
+              class="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition">
+        <svg id="icon-menu"  class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <svg id="icon-close" class="w-6 h-6 hidden" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6"  y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Menu mobile (dropdown) -->
+    <div id="mobile-menu" role="navigation" aria-label="Menu mobile"
+         class="md:hidden px-6 pb-4 border-t border-white/10">
+      <a href="#servicos"      class="nav-link block py-2.5">Serviços</a>
+      <a href="#como-funciona" class="nav-link block py-2.5">Como Funciona</a>
+      <a href="#footer"        class="nav-link block py-2.5">Contato</a>
+      <div class="flex gap-3 mt-3">
+        <a href="login.html" class="btn-outline text-sm">Login</a>
+        <a href="cadastro.html" class="btn-primary text-sm">Cadastro Grátis</a>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ════════════════════════════════════════
+       HERO SECTION
+  ═════════════════════════════════════════ -->
+  <main id="main-content">
+    <section id="hero" aria-labelledby="hero-title">
+      <div class="max-w-7xl mx-auto px-6 relative z-10 py-16">
+
+        <span class="hero-eyebrow">Assistência Executiva Inteligente</span>
+
+        <h1 id="hero-title" class="hero-title">
+          Sua agenda <span>alinhada</span>,<br>
+          seu foco no que<br>realmente importa.
+        </h1>
+
+        <p class="hero-desc">
+          A AssistPro cuida da gestão operacional do seu dia a dia corporativo –
+          agenda, e-mails, viagens e despesas – para que você dedique 100% da sua
+          energia ao crescimento do negócio.
+        </p>
+
+        <div class="hero-btn-group">
+          <a href="#servicos" class="btn-hero-primary">Conhecer os Serviços</a>
+          <a href="#footer"   class="btn-hero-ghost">Falar com um Especialista</a>
+        </div>
+
+        <!-- Indicadores numéricos -->
+        <div class="hero-stats" role="list" aria-label="Indicadores de resultado">
+          <div class="stat-item" role="listitem">
+            <div class="stat-number">+500</div>
+            <div class="stat-label">Executivos atendidos</div>
+          </div>
+          <div class="stat-item" role="listitem">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Satisfação dos clientes</div>
+          </div>
+          <div class="stat-item" role="listitem">
+            <div class="stat-number">12h</div>
+            <div class="stat-label">Economizadas por semana</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════════════
+         SERVIÇOS
+    ═════════════════════════════════════════ -->
+    <section id="servicos" aria-labelledby="servicos-title">
+      <div class="max-w-7xl mx-auto px-6 py-24">
+
+        <span class="section-eyebrow">O que oferecemos</span>
+        <h2 id="servicos-title" class="section-title">
+          Serviços projetados para<br>profissionais de alta performance
+        </h2>
+        <p class="section-subtitle">
+          Cada serviço foi desenhado para eliminar gargalos operacionais e devolver
+          horas produtivas ao seu dia.
+        </p>
+
+        <!-- Grid de 4 cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
+
+          <!-- Card 1: Agenda -->
+          <article class="service-card" role="listitem">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#2A9D8F" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8"  y1="2" x2="8"  y2="6"/>
+                <line x1="3"  y1="10" x2="21" y2="10"/>
+                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+              </svg>
+            </div>
+            <h3 class="service-title">Gestão de Agenda Executiva</h3>
+            <p class="service-desc">
+              Organizamos compromissos, reuniões e prazos com antecedência, mantendo
+              sua agenda sempre otimizada e sem conflitos.
+            </p>
+            <a href="#" class="service-link" aria-label="Saiba mais sobre Gestão de Agenda Executiva">
+              Saiba mais
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </article>
+
+          <!-- Card 2: E-mails -->
+          <article class="service-card" role="listitem">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#2A9D8F" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M2 7l10 7 10-7"/>
+              </svg>
+            </div>
+            <h3 class="service-title">Triagem e Resposta de E-mails</h3>
+            <p class="service-desc">
+              Filtramos, priorizamos e respondemos mensagens conforme diretrizes
+              personalizadas, garantindo que nenhuma oportunidade seja perdida.
+            </p>
+            <a href="#" class="service-link" aria-label="Saiba mais sobre Triagem e Resposta de E-mails">
+              Saiba mais
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </article>
+
+          <!-- Card 3: Viagens -->
+          <article class="service-card" role="listitem">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#2A9D8F" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19.5 2.5S18 2 17 2.5L3 11l2 3-4 2 2 4 5-1 2 3 5-2.5z"/>
+              </svg>
+            </div>
+            <h3 class="service-title">Organização de Viagens Corporativas</h3>
+            <p class="service-desc">
+              Planejamos passagens, hospedagens, transfers e itinerários completos,
+              assegurando conforto e cumprimento de políticas da empresa.
+            </p>
+            <a href="#" class="service-link" aria-label="Saiba mais sobre Organização de Viagens Corporativas">
+              Saiba mais
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </article>
+
+          <!-- Card 4: Despesas -->
+          <article class="service-card" role="listitem">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#2A9D8F" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9"  y1="15" x2="15" y2="15"/>
+              </svg>
+            </div>
+            <h3 class="service-title">Relatórios de Despesas e Reembolsos</h3>
+            <p class="service-desc">
+              Consolidamos comprovantes, categorizamos despesas e agilizamos o processo
+              de aprovação e reembolso dentro dos prazos corporativos.
+            </p>
+            <a href="#" class="service-link" aria-label="Saiba mais sobre Relatórios de Despesas e Reembolsos">
+              Saiba mais
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════════════════════
+         COMO FUNCIONA
+    ═════════════════════════════════════════ -->
+    <section id="como-funciona" aria-labelledby="cf-title">
+      <div class="max-w-7xl mx-auto px-6 py-24">
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          <!-- Texto -->
+          <div>
+            <span class="section-eyebrow" style="text-align:left; display:block;">Processo</span>
+            <h2 id="cf-title" class="section-title" style="text-align:left; margin-bottom:1.2rem;">
+              Simples para você,<br>completo para o seu negócio.
+            </h2>
+            <p style="font-size:0.95rem; color:#52666e; line-height:1.7; max-width:480px; margin-bottom:2.5rem;">
+              Em poucos dias sua operação administrativa já estará rodando com mais
+              fluidez e menos esforço da sua parte.
+            </p>
+
+            <ol class="flex flex-col gap-5" aria-label="Etapas do processo">
+              <li class="step-item">
+                <div class="step-number" aria-hidden="true">1</div>
+                <div>
+                  <div class="step-title">Diagnóstico inicial</div>
+                  <p class="step-desc">
+                    Entendemos sua rotina, ferramentas utilizadas e os principais
+                    gargalos que consomem o seu tempo.
+                  </p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number" aria-hidden="true">2</div>
+                <div>
+                  <div class="step-title">Personalização do plano</div>
+                  <p class="step-desc">
+                    Configuramos os serviços conforme as políticas e preferências
+                    da sua empresa.
+                  </p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number" aria-hidden="true">3</div>
+                <div>
+                  <div class="step-title">Operação e acompanhamento</div>
+                  <p class="step-desc">
+                    Nossa equipe entra em ação. Relatórios semanais mantêm você
+                    sempre informado sobre tudo que foi gerenciado.
+                  </p>
+                </div>
+              </li>
+            </ol>
+
+            <a href="#footer" class="btn-hero-primary"
+               style="margin-top:2.2rem; display:inline-block; font-size:0.95rem;">
+              Começar Agora
+            </a>
+          </div>
+
+          <!-- Visual decorativo com cards sobrepostos -->
+          <div aria-hidden="true"
+               class="relative hidden lg:flex items-center justify-center min-h-72">
+
+            <div class="absolute w-64 h-40 rounded-2xl shadow-xl"
+                 style="background:linear-gradient(135deg,#3D5A6B,#2d4455);
+                        transform:rotate(-6deg) translate(-20px, 10px);">
+            </div>
+
+            <div class="absolute w-64 h-40 rounded-2xl shadow-xl bg-white border border-gray-100"
+                 style="transform:rotate(2deg) translate(20px, -10px);
+                        padding:1.4rem 1.6rem;">
+              <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.1em;
+                          text-transform:uppercase; color:#2A9D8F; margin-bottom:0.5rem;">
+                Próximo compromisso
+              </div>
+              <div style="font-family:'Playfair Display',serif; font-size:1.05rem;
+                          font-weight:700; color:#1f5c55; margin-bottom:0.3rem;">
+                Reunião de Diretoria
+              </div>
+              <div style="font-size:0.8rem; color:#888; margin-bottom:0.9rem;">
+                Hoje · 14h00 · Sala Executiva A
+              </div>
+              <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <span style="background:#e0f5f3; color:#2A9D8F; font-size:0.68rem;
+                             font-weight:600; padding:0.2rem 0.55rem; border-radius:20px;">
+                  Pauta enviada ✓
+                </span>
+                <span style="background:#e6e6f8; color:#1f5c55; font-size:0.68rem;
+                             font-weight:600; padding:0.2rem 0.55rem; border-radius:20px;">
+                  5 confirmados
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main><!-- /main -->
+
+
+  <!-- ════════════════════════════════════════
+       RODAPÉ
+  ═════════════════════════════════════════ -->
+  <footer id="footer" role="contentinfo">
+    <div class="max-w-7xl mx-auto px-6">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-8">
+
+        <!-- Coluna 1: Marca -->
+        <div>
+          <div class="footer-logo-text">Assist<span>Pro</span></div>
+          <p class="footer-tagline">Assistente Pessoal para Negócios</p>
+          <p style="font-size:0.82rem; color:rgba(255,255,255,0.45); margin-top:0.9rem; line-height:1.6;">
+            Cuidamos do operacional para que você cuide do estratégico.
+          </p>
+          <!-- Redes Sociais -->
+          <div class="flex gap-2 mt-4" aria-label="Redes sociais">
+
+            <!-- LinkedIn -->
+            <a href="#" class="social-btn" aria-label="LinkedIn da AssistPro">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                <rect x="2" y="9" width="4" height="12"/>
+                <circle cx="4" cy="4" r="2"/>
+              </svg>
+            </a>
+
+            <!-- Instagram -->
+            <a href="#" class="social-btn" aria-label="Instagram da AssistPro">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+            </a>
+
+            <!-- WhatsApp -->
+            <a href="#" class="social-btn" aria-label="WhatsApp da AssistPro">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.99.586 3.841 1.594 5.391L2 22l4.753-1.56A9.953 9.953 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
+              </svg>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- Coluna 2: Serviços -->
+        <div>
+          <h3 class="footer-heading">Serviços</h3>
+          <a href="#servicos" class="footer-link">Gestão de Agenda Executiva</a>
+          <a href="#servicos" class="footer-link">Triagem de E-mails</a>
+          <a href="#servicos" class="footer-link">Viagens Corporativas</a>
+          <a href="#servicos" class="footer-link">Relatórios de Despesas</a>
+        </div>
+
+        <!-- Coluna 3: Empresa -->
+        <div>
+          <h3 class="footer-heading">Empresa</h3>
+          <a href="#" class="footer-link">Sobre nós</a>
+          <a href="#" class="footer-link">Blog Executivo</a>
+          <a href="#" class="footer-link">Política de Privacidade</a>
+          <a href="#" class="footer-link">Termos de Uso</a>
+        </div>
+
+        <!-- Coluna 4: Contato -->
+        <div>
+          <h3 class="footer-heading">Contato</h3>
+
+          <address style="font-style:normal;">
+
+            <div class="contact-item">
+              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   style="color:rgba(255,255,255,0.5);" aria-hidden="true">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <a href="mailto:contato@assistpro.com.br" class="footer-link" style="margin-bottom:0;">
+                contato@assistpro.com.br
+              </a>
+            </div>
+
+            <div class="contact-item">
+              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   style="color:rgba(255,255,255,0.5);" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/>
+              </svg>
+              <a href="tel:+551132456789" class="footer-link" style="margin-bottom:0;">
+                +55 (11) 3245-6789
+              </a>
+            </div>
+
+            <div class="contact-item">
+              <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                   style="color:rgba(255,255,255,0.5);" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>
+                Av. Paulista, 1000 – 12º andar<br>
+                São Paulo – SP, 01310-100
+              </span>
+            </div>
+
+          </address>
+        </div>
+
+      </div><!-- /grid -->
+
+      <hr class="footer-divider" />
+
+      <p class="footer-copy text-center pb-4">
+        © <span id="year"></span> AssistPro. Todos os direitos reservados.
+      </p>
+
+    </div>
+  </footer>
+
+
+  <!-- ════════════════════════════════════════
+       WIDGET DE CHAT FLUTUANTE
+  ═════════════════════════════════════════ -->
+  <div id="chat-widget" role="complementary" aria-label="Chat de atendimento">
+
+    <!-- Balão do chat -->
+    <div id="chat-box" aria-live="polite" aria-label="Janela de chat">
+
+      <!-- Cabeçalho -->
+      <div id="chat-header">
+        <div class="chat-avatar" aria-hidden="true">A</div>
+        <div class="chat-info">
+          <div class="chat-name">Assistente AssistPro</div>
+          <div class="chat-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            Online agora
+          </div>
+        </div>
+        <button id="chat-close-btn" aria-label="Fechar chat">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6"  y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mensagens -->
+      <div id="chat-messages" role="log" aria-label="Histórico de mensagens">
+        <!-- Mensagem inicial do bot inserida via JS -->
+      </div>
+
+      <!-- Chips de sugestão rápida -->
+      <div id="chat-suggestions" role="group" aria-label="Perguntas sugeridas">
+        <button class="chip" onclick="sendChip(this)">📅 Gestão de Agenda</button>
+        <button class="chip" onclick="sendChip(this)">📧 E-mails</button>
+        <button class="chip" onclick="sendChip(this)">✈️ Viagens</button>
+        <button class="chip" onclick="sendChip(this)">💰 Despesas</button>
+      </div>
+
+      <!-- Input -->
+      <div id="chat-input-area">
+        <input
+          id="chat-input"
+          type="text"
+          placeholder="Digite sua dúvida..."
+          aria-label="Digite sua mensagem"
+          maxlength="300"
+        />
+        <button id="chat-send-btn" aria-label="Enviar mensagem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Botão flutuante de abertura -->
+    <button id="chat-toggle-btn" aria-label="Abrir chat de atendimento" aria-expanded="false">
+      <svg id="icon-chat" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <svg id="icon-chat-close" class="w-6 h-6 hidden" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6"  y1="6" x2="18" y2="18"/>
+      </svg>
+      <span id="chat-badge" aria-label="1 mensagem não lida">1</span>
+    </button>
+
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       JAVASCRIPT
+  ═════════════════════════════════════════ -->
+  <script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const menuBtn    = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconMenu   = document.getElementById('icon-menu');
+  const iconClose  = document.getElementById('icon-close');
+
+  menuBtn.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', String(isOpen));
+    iconMenu.classList.toggle('hidden',  isOpen);
+    iconClose.classList.toggle('hidden', !isOpen);
+  });
+
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      iconMenu.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+    });
+  });
+
+  const KB = [
+    /* ── Saudações ── */
+    {
+      patterns: ['oi','olá','ola','bom dia','boa tarde','boa noite','hello','hi','tudo bem','tudo bom','como vai','hey'],
+      reply: `👋 Olá! Seja bem-vindo(a) à <strong>AssistPro</strong>.<br><br>Sou o assistente virtual e posso te ajudar com informações sobre nossos serviços ou iniciar seu cadastro agora mesmo.<br><br>Sobre o que gostaria de saber?<br>📅 Agenda · 📧 E-mails · ✈️ Viagens · 💰 Despesas · 💼 Planos e preços`
+    },
+
+    /* ── Agenda ── */
+    {
+      patterns: ['agenda','compromisso','reunião','reuniao','reunioes','calendario','calendário','horário','horario','agendamento','schedule','marcação','marcacao','disponibilidade'],
+      reply: `📅 <strong>Gestão de Agenda Executiva</strong><br><br>Organizamos toda a sua agenda: marcação de reuniões, envio de convites, gerenciamento de conflitos de horário e lembretes automáticos. Integramos com <strong>Google Calendar, Outlook e Notion</strong>.<br><br>✅ Confirmação de reuniões com participantes<br>✅ Bloqueio de horários estratégicos<br>✅ Relatório semanal de compromissos<br><br>Quer experimentar gratuitamente por 14 dias? 🚀`
+    },
+
+    /* ── E-mails ── */
+    {
+      patterns: ['email','e-mail','emails','e-mails','caixa','inbox','mensagem','resposta','triagem','filtrar','filtro','correio','caixa de entrada'],
+      reply: `📧 <strong>Triagem e Resposta de E-mails</strong><br><br>Monitoramos sua caixa de entrada, classificamos mensagens por prioridade e respondemos conforme modelos que você aprova previamente.<br><br>✅ Categorização: urgente · importante · informativo<br>✅ Respostas padronizadas e personalizadas<br>✅ Relatório diário de e-mails tratados<br><br>Tem mais de 200 e-mails acumulados? Comece seu <strong>teste grátis</strong> e resolva isso hoje! 💪`
+    },
+
+    /* ── Viagens ── */
+    {
+      patterns: ['viagem','viagens','voo','voos','passagem','passagens','hotel','hospedagem','transfer','itinerario','itinerário','aeroporto','taxi','uber','visto'],
+      reply: `✈️ <strong>Organização de Viagens Corporativas</strong><br><br>Cuidamos de tudo para suas viagens:<br><br>✅ Pesquisa e reserva de passagens aéreas<br>✅ Hotéis dentro da política da empresa<br>✅ Transfers e traslados<br>✅ Assistência com vistos e documentação<br>✅ Suporte em tempo real para imprevistos<br><br>Quer receber um itinerário de demonstração? Me diga o destino! 🌍`
+    },
+
+    /* ── Despesas ── */
+    {
+      patterns: ['despesa','despesas','reembolso','reembolsos','nota fiscal','comprovante','comprovantes','relatorio','relatório','gastos','financeiro','custo','custos','recibo','concur','sap'],
+      reply: `💰 <strong>Relatórios de Despesas e Reembolsos</strong><br><br>Coletamos, organizamos e submetemos todos os comprovantes dentro do prazo:<br><br>✅ Categorização por centro de custo<br>✅ Integração com Concur, SAP e planilhas<br>✅ Relatórios prontos para aprovação contábil<br>✅ Alerta de prazos de reembolso<br><br>Isso pode te economizar <strong>horas por mês</strong>. Quer iniciar o teste grátis? 📊`
+    },
+
+    /* ── Preço / Planos ── */
+    {
+      patterns: ['preço','preco','valor','plano','planos','quanto','mensalidade','assinatura','contrato','custo','investimento','pacote','trial','gratis','grátis','teste'],
+      reply: `💼 <strong>Planos AssistPro</strong><br><br>Temos opções para todos os perfis:<br><br>🥉 <strong>Starter</strong> – 1 executivo, serviços básicos<br>🥈 <strong>Professional</strong> – até 3 executivos + relatórios avançados<br>🥇 <strong>Enterprise</strong> – equipes grandes, SLA garantido e integração customizada<br><br>Todos os planos incluem <strong>14 dias grátis</strong>, sem cartão de crédito.<br><br>Quer que eu te ajude a escolher o plano ideal? Me conta um pouco da sua rotina! 😊`
+    },
+
+    /* ── Como funciona / Integração ── */
+    {
+      patterns: ['como funciona','funciona','como','processo','etapa','etapas','integração','integracao','comecar','começar','inicio','início','onboarding'],
+      reply: `🚀 <strong>Como funciona a AssistPro</strong><br><br><strong>1. Diagnóstico</strong> – Reunião rápida para entender sua rotina e ferramentas (30 min)<br><strong>2. Configuração</strong> – Personalizamos os serviços e integramos com seus sistemas<br><strong>3. Operação</strong> – Nossa equipe entra em ação em até 48h<br><strong>4. Acompanhamento</strong> – Relatórios semanais e ajustes contínuos<br><br>Quer agendar um diagnóstico gratuito agora? 📞`
+    },
+
+    /* ── Segurança / Privacidade ── */
+    {
+      patterns: ['segurança','seguranca','privacidade','lgpd','dados','sigilo','confidencial','confio','confiança','confianca','seguro'],
+      reply: `🔒 <strong>Segurança e Privacidade</strong><br><br>Levamos a segurança dos seus dados muito a sério:<br><br>✅ Conformidade com a <strong>LGPD</strong><br>✅ Criptografia end-to-end em todas as comunicações<br>✅ Acesso restrito por autenticação multifator<br>✅ Contrato de confidencialidade (NDA) disponível<br>✅ Servidores em nuvem com certificação ISO 27001<br><br>Alguma dúvida específica sobre segurança?`
+    },
+
+    /* ── Quero contratar / Cadastro ── */
+    {
+      patterns: ['quero','contratar','contratar','cadastrar','cadastro','assinar','começar agora','comecar agora','me interessa','interessei','fechar','iniciar'],
+      reply: `🎉 Que ótima decisão! Você está a um passo de transformar sua produtividade.<br><br>Para começar, basta criar sua conta gratuitamente — <strong>sem cartão de crédito</strong> e com 14 dias de teste:<br><br><a href="cadastro.html" style="display:inline-block;background:#2A9D8F;color:#fff;padding:0.5rem 1.2rem;border-radius:6px;text-decoration:none;font-weight:700;margin-top:0.5rem;">✨ Criar conta grátis</a><br><br>Se preferir, posso te passar o contato de um especialista para tirar dúvidas antes. 😊`
+    },
+
+    /* ── Falar com humano / Especialista ── */
+    {
+      patterns: ['falar','humano','atendente','especialista','pessoa','equipe','suporte','consultoria','gerente','vendas'],
+      reply: `🤝 Claro! Para falar diretamente com um especialista da AssistPro:<br><br>📩 <strong>contato@assistpro.com.br</strong><br>📞 <strong>+55 (11) 3245-6789</strong><br>📍 Av. Paulista, 1000 – 12º andar, São Paulo – SP<br><br>⏰ Atendimento: segunda a sexta, 08h às 18h<br><br>Ou posso agendar uma <strong>chamada de apresentação gratuita</strong> para você. Quer que eu te ajude com isso? 📆`
+    },
+
+    /* ── Diferenciais / Por que a AssistPro ── */
+    {
+      patterns: ['diferencial','porque','por que','vantagem','beneficio','benefício','melhor','destaque','diferente','concorrente'],
+      reply: `⭐ <strong>Por que escolher a AssistPro?</strong><br><br>✅ +500 executivos atendidos com <strong>98% de satisfação</strong><br>✅ Assistentes especializados em negócios (não genéricos)<br>✅ Resposta garantida em até <strong>2 horas úteis</strong><br>✅ Sem burocracia: comece em 48h<br>✅ Flexível: ajuste ou cancele a qualquer momento<br>✅ Custo até 70% menor que uma secretária CLT<br><br>Quer ver um caso de sucesso de alguém do seu segmento? 📈`
+    },
+
+    /* ── Tempo / Economia de horas ── */
+    {
+      patterns: ['tempo','hora','horas','produtividade','foco','economia','economizar','ganhar tempo'],
+      reply: `⏰ <strong>Quanto tempo você vai recuperar?</strong><br><br>Nossos clientes relatam economizar em média <strong>12 horas por semana</strong> após contratar a AssistPro — tempo que vai direto para o crescimento do negócio.<br><br>📅 Agenda: ~3h/semana<br>📧 E-mails: ~4h/semana<br>✈️ Viagens: ~2h por viagem<br>💰 Despesas: ~3h/mês<br><br>Imagine o que você faria com esse tempo de volta. Quer experimentar? 🚀`
+    },
+
+    /* ── Agradecimento ── */
+    {
+      patterns: ['obrigado','obrigada','valeu','thanks','grato','grata','perfeito','ótimo','otimo','excelente','show'],
+      reply: `😊 Fico feliz em ajudar! Se tiver mais alguma dúvida, é só perguntar.<br><br>E quando quiser dar o próximo passo, estou aqui:<br>👉 <a href="cadastro.html" style="color:#2A9D8F;font-weight:700;">Criar conta grátis</a> | <a href="mailto:contato@assistpro.com.br" style="color:#2A9D8F;font-weight:700;">Falar com especialista</a>`
+    },
+
+    /* ── Cancelamento / Dúvida sobre contrato ── */
+    {
+      patterns: ['cancelar','cancelamento','fidelidade','fidelidade','multa','fidelidade','permanência','permanencia','lock-in','sair'],
+      reply: `✅ <strong>Sem fidelidade, sem multas!</strong><br><br>Na AssistPro você tem total liberdade:<br><br>🔓 Cancele quando quiser, sem taxa<br>🔓 Sem contrato de fidelidade<br>🔓 Dados exportados e entregues na saída<br><br>Nosso compromisso é que você fique porque <em>quer</em>, não porque é obrigado(a). 😊<br><br>Quer iniciar o teste grátis de 14 dias?`
+    },
+
+    /* ── Despedida ── */
+    {
+      patterns: ['tchau','até mais','ate mais','até logo','adeus','bye','falou','flw'],
+      reply: `👋 Até mais! Foi um prazer conversar com você.<br><br>Quando quiser conhecer a AssistPro de perto, estaremos aqui. Bons negócios! 🚀`
+    },
+  ];
+
+  const FALLBACK = `Entendo sua dúvida! 😊 Posso te ajudar sobre:<br><br>📅 Gestão de Agenda · 📧 E-mails · ✈️ Viagens · 💰 Despesas<br>💼 Planos e preços · 🔒 Segurança · 🚀 Como funciona<br><br>Ou, se preferir, fale diretamente com um especialista: <strong>📞 (11) 3245-6789</strong>`;
+
+  function normalize(text) {
+    return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, ' ');
+  }
+
+  function getReply(input) {
+    const norm = normalize(input);
+    const words = norm.split(/\s+/);
+    for (const entry of KB) {
+      if (entry.patterns.some(p => words.some(w => w.includes(p) || p.includes(w)))) return entry.reply;
+    }
+    return FALLBACK;
+  }
+
+  const chatBox       = document.getElementById('chat-box');
+  const chatToggleBtn = document.getElementById('chat-toggle-btn');
+  const chatCloseBtn  = document.getElementById('chat-close-btn');
+  const chatMessages  = document.getElementById('chat-messages');
+  const chatInput     = document.getElementById('chat-input');
+  const chatSendBtn   = document.getElementById('chat-send-btn');
+  const chatBadge     = document.getElementById('chat-badge');
+  const iconChatOpen  = document.getElementById('icon-chat');
+  const iconChatClose = document.getElementById('icon-chat-close');
+
+  function addMessage(html, type) {
+    const msg = document.createElement('div');
+    msg.className = `msg msg-${type}`;
+    msg.innerHTML = html;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function showTyping() {
+    const el = document.createElement('div');
+    el.id = 'typing-indicator';
+    el.className = 'msg msg-bot typing-dots';
+    el.innerHTML = '<span></span><span></span><span></span>';
+    el.setAttribute('aria-label', 'Assistente está digitando');
+    chatMessages.appendChild(el);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function hideTyping() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function sendMessage(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    addMessage(trimmed, 'user');
+    chatInput.value = '';
+    const suggestions = document.getElementById('chat-suggestions');
+    if (suggestions) suggestions.remove();
+    showTyping();
+    setTimeout(() => { hideTyping(); addMessage(getReply(trimmed), 'bot'); }, 700 + Math.random() * 600);
+  }
+
+  function sendChip(chip) {
+    sendMessage(chip.textContent.replace(/[^\w\sáéíóúãõâêôàçü-]/gi, '').trim());
+  }
+
+  function toggleChat() {
+    const isOpen = chatBox.classList.toggle('open');
+    chatToggleBtn.setAttribute('aria-expanded', String(isOpen));
+    iconChatOpen.classList.toggle('hidden', isOpen);
+    iconChatClose.classList.toggle('hidden', !isOpen);
+    if (isOpen) { chatBadge.style.display = 'none'; chatInput.focus(); }
+  }
+
+  chatToggleBtn.addEventListener('click', toggleChat);
+  chatCloseBtn.addEventListener('click', toggleChat);
+  chatSendBtn.addEventListener('click', () => sendMessage(chatInput.value));
+  chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(chatInput.value); }
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      addMessage(`👋 Olá! Sou o assistente virtual da <strong>AssistPro</strong>.<br>Posso responder dúvidas sobre nossos serviços de apoio executivo.<br><br>Use os atalhos abaixo ou escreva sua pergunta!`, 'bot');
+    }, 500);
+  });
+  </script>
+
+</body>
+</html>

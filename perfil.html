@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AssistPro – Meu Perfil" />
+  <title>Meu Perfil | AssistPro</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; margin: 0; background: #f4f7f7; color: #2d3d3a; }
+    :focus-visible { outline: 3px solid #2A9D8F; outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    /* ── Layout ── */
+    .app-shell { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar (igual ao dashboard) ── */
+    #sidebar {
+      width: 264px; flex-shrink: 0;
+      background: linear-gradient(180deg, #3D5A6B 0%, #2d4455 55%, #1e3040 100%);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100; transition: transform 0.25s ease;
+    }
+    .sidebar-logo {
+      font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 700;
+      color: #fff; text-decoration: none; display: flex; align-items: center;
+      gap: 0.6rem; padding: 1.6rem 1.5rem 1.4rem;
+    }
+    .sidebar-logo span { color: #a8e6e0; }
+    .sidebar-logo-icon {
+      width: 36px; height: 36px; background: #2A9D8F; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sidebar-nav { padding: 0.6rem 1rem; flex: 1; overflow-y: auto; }
+    .sidebar-section-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em;
+      text-transform: uppercase; color: rgba(255,255,255,0.32);
+      padding: 1.1rem 0.75rem 0.5rem;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.68rem 0.85rem; border-radius: 9px;
+      color: rgba(255,255,255,0.68); font-size: 0.875rem; font-weight: 500;
+      text-decoration: none; margin-bottom: 0.2rem;
+      transition: background-color 0.18s, color 0.18s;
+    }
+    .sidebar-link svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .sidebar-link.active { background: rgba(42,157,143,0.22); color: #fff; box-shadow: inset 3px 0 0 #2A9D8F; }
+    .sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.10); }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.6rem 0.65rem; border-radius: 10px;
+      text-decoration: none; transition: background-color 0.18s;
+    }
+    .sidebar-user:hover { background: rgba(255,255,255,0.08); }
+    .sidebar-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, #2A9D8F, #1f7268);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .sidebar-user-name { font-size: 0.83rem; font-weight: 600; color: #fff; line-height: 1.2; }
+    .sidebar-user-role { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+    .sidebar-logout {
+      display: flex; align-items: center; gap: 0.6rem; width: 100%;
+      background: none; border: none; color: rgba(255,255,255,0.55);
+      font-size: 0.8rem; font-weight: 500; font-family: 'Inter', sans-serif;
+      padding: 0.6rem 0.65rem; margin-top: 0.3rem; border-radius: 9px;
+      cursor: pointer; transition: background-color 0.18s, color 0.18s;
+    }
+    .sidebar-logout:hover { background: rgba(224,82,82,0.15); color: #f3a0a0; }
+    .sidebar-logout svg { width: 16px; height: 16px; }
+    #sidebar-toggle {
+      display: none; position: fixed; top: 1rem; left: 1rem; z-index: 200;
+      width: 42px; height: 42px; background: #3D5A6B; border-radius: 10px;
+      border: none; color: #fff; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 99; }
+
+    /* ── Conteúdo ── */
+    #main { margin-left: 264px; flex: 1; min-width: 0; }
+    #topbar {
+      background: #fff; border-bottom: 1.5px solid #e3eeed;
+      padding: 1.1rem 2rem; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-greeting { font-size: 0.78rem; color: #8aafb9; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .topbar-title { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 700; color: #3D5A6B; }
+    .topbar-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #2A9D8F, #1f7268);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; color: #fff;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .content { padding: 2rem; max-width: 860px; }
+
+    /* ── Avatar grande ── */
+    .profile-hero {
+      background: linear-gradient(120deg, #3D5A6B 0%, #2d4455 65%, #1e3040 100%);
+      border-radius: 18px; padding: 2.2rem 2.4rem;
+      display: flex; align-items: center; gap: 1.8rem;
+      margin-bottom: 2rem; position: relative; overflow: hidden;
+    }
+    .profile-hero::after {
+      content: ''; position: absolute; top: -80px; right: -60px;
+      width: 280px; height: 280px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(42,157,143,0.20) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .profile-big-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #2A9D8F, #1f7268);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-size: 1.7rem;
+      font-weight: 700; color: #fff; flex-shrink: 0;
+      border: 3px solid rgba(255,255,255,0.2);
+      position: relative; z-index: 1;
+    }
+    .profile-hero-info { position: relative; z-index: 1; }
+    .profile-hero-name {
+      font-family: 'Playfair Display', serif; font-size: 1.6rem;
+      font-weight: 700; color: #fff; margin-bottom: 0.25rem;
+    }
+    .profile-hero-email { font-size: 0.88rem; color: rgba(255,255,255,0.60); }
+    .profile-hero-badge {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      margin-top: 0.6rem; background: rgba(42,157,143,0.25);
+      border: 1px solid rgba(42,157,143,0.45);
+      border-radius: 20px; padding: 0.25rem 0.75rem;
+      font-size: 0.75rem; font-weight: 600; color: #a8e6e0;
+    }
+
+    /* ── Card de seção ── */
+    .profile-card {
+      background: #fff; border: 1.5px solid #d4e6e4;
+      border-radius: 14px; padding: 1.8rem 2rem;
+      margin-bottom: 1.4rem;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.4rem; padding-bottom: 1rem;
+      border-bottom: 1px solid #eef4f4;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif; font-size: 1.1rem;
+      font-weight: 700; color: #3D5A6B;
+    }
+    .card-icon { width: 36px; height: 36px; border-radius: 9px;
+      background: linear-gradient(135deg, #e0f5f3, #f0fbfa);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-icon svg { width: 18px; height: 18px; color: #2A9D8F; }
+
+    /* Campos readonly */
+    .info-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.75rem 0; border-bottom: 1px solid #f0f5f5;
+    }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-label { font-size: 0.78rem; font-weight: 600; color: #8aafb9; width: 140px; flex-shrink: 0; }
+    .info-value { font-size: 0.88rem; color: #3D5A6B; font-weight: 500; flex: 1; }
+    .info-badge {
+      font-size: 0.72rem; font-weight: 700; padding: 0.18rem 0.55rem;
+      border-radius: 12px; background: #edfbf5; color: #1a6e46;
+    }
+
+    /* Campo de edição */
+    .field-group { margin-bottom: 1.1rem; }
+    .field-label { display: block; font-size: 0.8rem; font-weight: 600; color: #3D5A6B; margin-bottom: 0.38rem; }
+    .field-wrapper { position: relative; }
+    .field-icon { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #8aafb9; pointer-events: none; }
+    .field-icon svg { width: 16px; height: 16px; }
+    .field-input {
+      width: 100%; padding: 0.70rem 0.85rem 0.70rem 2.5rem;
+      font-size: 0.87rem; font-family: 'Inter', sans-serif;
+      color: #2d3d3a; background: #f4f7f7;
+      border: 1.5px solid #cce0de; border-radius: 8px; outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .field-input:focus { border-color: #2A9D8F; background: #fff; box-shadow: 0 0 0 3px rgba(42,157,143,0.12); }
+    .field-input::placeholder { color: #aac0c4; }
+    .field-input[readonly] { opacity: 0.65; cursor: not-allowed; }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* Botões */
+    .btn-save {
+      background: #2A9D8F; color: #fff; font-weight: 700; font-size: 0.9rem;
+      padding: 0.75rem 1.8rem; border-radius: 8px; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.15s; font-family: 'Inter', sans-serif;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+    }
+    .btn-save:hover { background: #1f7268; }
+    .btn-save:active { transform: scale(0.98); }
+    .btn-save svg { width: 16px; height: 16px; }
+
+    .btn-danger {
+      background: #fff; color: #c43c3c; font-weight: 600; font-size: 0.88rem;
+      padding: 0.72rem 1.5rem; border-radius: 8px;
+      border: 1.5px solid #f5c5c5; cursor: pointer;
+      transition: background 0.2s, border-color 0.2s; font-family: 'Inter', sans-serif;
+    }
+    .btn-danger:hover { background: #fef1f1; border-color: #e05252; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 1.8rem; right: 1.8rem; z-index: 999;
+      background: #1a6e46; color: #fff; font-size: 0.85rem; font-weight: 600;
+      padding: 0.75rem 1.3rem; border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      display: flex; align-items: center; gap: 0.5rem;
+      transform: translateY(80px); opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast svg { width: 16px; height: 16px; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 0; border-bottom: 1px solid #f0f5f5;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 0.88rem; color: #3D5A6B; font-weight: 500; }
+    .toggle-desc { font-size: 0.76rem; color: #8aafb9; margin-top: 0.1rem; }
+    .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #cce0de; border-radius: 24px;
+      transition: background 0.2s;
+    }
+    .slider::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: transform 0.2s;
+    }
+    input:checked + .slider { background: #2A9D8F; }
+    input:checked + .slider::before { transform: translateX(20px); }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); box-shadow: 0 0 60px rgba(0,0,0,0.4); }
+      #sidebar-toggle { display: flex; }
+      #sidebar-overlay.open { display: block; }
+      #main { margin-left: 0; }
+      #topbar { padding: 1rem 1.2rem 1rem 4.2rem; }
+      .content { padding: 1.2rem; }
+      .profile-hero { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .row-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── Botão mobile ── -->
+  <button id="sidebar-toggle" aria-label="Abrir menu" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <div id="sidebar-overlay"></div>
+
+  <!-- ── Sidebar ── -->
+  <aside id="sidebar" aria-label="Navegação do painel">
+    <a href="dashboard.html" class="sidebar-logo" aria-label="AssistPro – painel">
+      <span class="sidebar-logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </span>
+      Assist<span>Pro</span>
+    </a>
+
+    <nav class="sidebar-nav" aria-label="Menu principal">
+      <span class="sidebar-section-label">Painel</span>
+      <a href="dashboard.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="5" rx="1.5"/>
+          <rect x="14" y="12" width="7" height="9" rx="1.5"/>
+          <rect x="3" y="16" width="7" height="5" rx="1.5"/>
+        </svg>
+        Visão geral
+      </a>
+      <span class="sidebar-section-label">Serviços</span>
+      <a href="dashboard.html#agenda" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        Agenda
+      </a>
+      <a href="dashboard.html#emails" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M2 7l10 7 10-7"/>
+        </svg>
+        E-mails
+      </a>
+      <a href="dashboard.html#viagens" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19.5 2.5S18 2 17 2.5L3 11l2 3-4 2 2 4 5-1 2 3 5-2.5z"/>
+        </svg>
+        Viagens
+      </a>
+      <a href="dashboard.html#despesas" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+        </svg>
+        Despesas
+      </a>
+      <span class="sidebar-section-label">Conta</span>
+      <a href="perfil.html" class="sidebar-link active" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Meu perfil
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="perfil.html" class="sidebar-user" aria-label="Meu perfil">
+        <span class="sidebar-avatar" id="sidebar-avatar-initials" aria-hidden="true">--</span>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-user-name">Carregando…</div>
+          <div class="sidebar-user-role">Conta gratuita</div>
+        </div>
+      </a>
+      <button class="sidebar-logout" id="btn-logout" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sair da conta
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Conteúdo principal ── -->
+  <div id="main">
+
+    <header id="topbar">
+      <div>
+        <div class="topbar-greeting">Configurações</div>
+        <h1 class="topbar-title">Meu Perfil</h1>
+      </div>
+      <a href="perfil.html" class="topbar-avatar" id="topbar-avatar-initials" aria-label="Perfil">--</a>
+    </header>
+
+    <div class="content">
+
+      <!-- Banner do perfil -->
+      <div class="profile-hero">
+        <div class="profile-big-avatar" id="hero-initials" aria-hidden="true">--</div>
+        <div class="profile-hero-info">
+          <div class="profile-hero-name" id="hero-name">Carregando…</div>
+          <div class="profile-hero-email" id="hero-email">—</div>
+          <div class="profile-hero-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Conta ativa · Plano Gratuito
+          </div>
+        </div>
+      </div>
+
+      <!-- Informações da conta (readonly) -->
+      <div class="profile-card">
+        <div class="card-header">
+          <h2 class="card-title">Informações da conta</h2>
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Nome completo</span>
+          <span class="info-value" id="info-name">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">E-mail</span>
+          <span class="info-value" id="info-email">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status da conta</span>
+          <span class="info-value"><span class="info-badge">✓ Ativa</span></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Plano atual</span>
+          <span class="info-value">Gratuito · 14 dias de teste</span>
+        </div>
+      </div>
+
+      <!-- Editar dados pessoais -->
+      <div class="profile-card">
+        <div class="card-header">
+          <h2 class="card-title">Editar dados pessoais</h2>
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </div>
+        </div>
+
+        <form id="form-profile" novalidate>
+          <div class="row-2">
+            <div class="field-group">
+              <label class="field-label" for="edit-name">Nome completo</label>
+              <div class="field-wrapper">
+                <span class="field-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input id="edit-name" type="text" class="field-input"
+                  placeholder="Seu nome completo" autocomplete="name" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="edit-email">E-mail</label>
+              <div class="field-wrapper">
+                <span class="field-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                </span>
+                <input id="edit-email" type="email" class="field-input"
+                  placeholder="seu@email.com" autocomplete="email" readonly
+                  title="O e-mail não pode ser alterado" />
+              </div>
+              <p style="font-size:0.72rem;color:#8aafb9;margin-top:0.28rem;">O e-mail não pode ser alterado.</p>
+            </div>
+          </div>
+
+          <div class="row-2">
+            <div class="field-group">
+              <label class="field-label" for="edit-phone">Telefone</label>
+              <div class="field-wrapper">
+                <span class="field-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/>
+                  </svg>
+                </span>
+                <input id="edit-phone" type="tel" class="field-input" placeholder="(11) 99999-0000" autocomplete="tel" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="edit-company">Empresa</label>
+              <div class="field-wrapper">
+                <span class="field-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                </span>
+                <input id="edit-company" type="text" class="field-input" placeholder="Nome da empresa" />
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.4rem;">
+            <button type="submit" class="btn-save">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Salvar alterações
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Preferências e notificações -->
+      <div class="profile-card">
+        <div class="card-header">
+          <h2 class="card-title">Notificações</h2>
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+            </svg>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">E-mail de resumo semanal</div>
+            <div class="toggle-desc">Receba um resumo das atividades toda segunda-feira</div>
+          </div>
+          <label class="switch" aria-label="Ativar e-mail de resumo semanal">
+            <input type="checkbox" checked onchange="showToast('Preferência salva!')" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Alertas de compromissos</div>
+            <div class="toggle-desc">Notificação 30 minutos antes de cada reunião</div>
+          </div>
+          <label class="switch" aria-label="Ativar alertas de compromissos">
+            <input type="checkbox" checked onchange="showToast('Preferência salva!')" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Novidades e dicas da AssistPro</div>
+            <div class="toggle-desc">Comunicações sobre novos recursos e melhorias</div>
+          </div>
+          <label class="switch" aria-label="Ativar novidades e dicas">
+            <input type="checkbox" onchange="showToast('Preferência salva!')" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Zona de perigo -->
+      <div class="profile-card" style="border-color:#f5c5c5;">
+        <div class="card-header">
+          <h2 class="card-title" style="color:#c43c3c;">Zona de risco</h2>
+          <div class="card-icon" style="background:linear-gradient(135deg,#fef1f1,#fff5f5);" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#c43c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+        </div>
+        <p style="font-size:0.85rem;color:#52666e;margin-bottom:1.2rem;line-height:1.6;">
+          Ao encerrar sua conta, todos os dados serão permanentemente excluídos após 30 dias.
+          Esta ação não pode ser desfeita.
+        </p>
+        <button class="btn-danger" onclick="confirmDelete()">
+          Encerrar minha conta
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast de confirmação -->
+<div id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  <span id="toast-msg">Alterações salvas!</span>
+</div>
+
+<script>
+  /* ── Proteção de rota ── */
+  if (!sessionStorage.getItem('assistpro_logged')) {
+    window.location.href = 'login.html';
+  }
+
+  const userName  = sessionStorage.getItem('assistpro_user')  || 'Visitante';
+  const userEmail = sessionStorage.getItem('assistpro_email') || '';
+
+  function getInitials(name) {
+    const p = name.trim().split(/\s+/).filter(Boolean);
+    if (!p.length) return '?';
+    if (p.length === 1) return p[0].slice(0, 2).toUpperCase();
+    return (p[0][0] + p[p.length - 1][0]).toUpperCase();
+  }
+
+  const initials = getInitials(userName);
+
+  /* Preenche todos os campos com dados do sessionStorage */
+  document.getElementById('sidebar-avatar-initials').textContent = initials;
+  document.getElementById('sidebar-user-name').textContent       = userName;
+  document.getElementById('topbar-avatar-initials').textContent  = initials;
+  document.getElementById('hero-initials').textContent           = initials;
+  document.getElementById('hero-name').textContent               = userName;
+  document.getElementById('hero-email').textContent              = userEmail || '(e-mail não disponível)';
+  document.getElementById('info-name').textContent               = userName;
+  document.getElementById('info-email').textContent              = userEmail || '—';
+  document.getElementById('edit-name').value                     = userName;
+  document.getElementById('edit-email').value                    = userEmail;
+
+  /* Preenche empresa e telefone se salvos anteriormente */
+  const savedPhone   = sessionStorage.getItem('assistpro_phone')   || '';
+  const savedCompany = sessionStorage.getItem('assistpro_company') || '';
+  document.getElementById('edit-phone').value   = savedPhone;
+  document.getElementById('edit-company').value = savedCompany;
+
+  /* ── Toast ── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+  window.showToast = showToast;
+
+  /* ── Salvar perfil ── */
+  document.getElementById('form-profile').addEventListener('submit', e => {
+    e.preventDefault();
+    const newName    = document.getElementById('edit-name').value.trim();
+    const newPhone   = document.getElementById('edit-phone').value.trim();
+    const newCompany = document.getElementById('edit-company').value.trim();
+
+    if (newName) {
+      sessionStorage.setItem('assistpro_user', newName);
+      const ni = getInitials(newName);
+      document.getElementById('hero-initials').textContent           = ni;
+      document.getElementById('hero-name').textContent               = newName;
+      document.getElementById('info-name').textContent               = newName;
+      document.getElementById('sidebar-avatar-initials').textContent = ni;
+      document.getElementById('sidebar-user-name').textContent       = newName;
+      document.getElementById('topbar-avatar-initials').textContent  = ni;
+    }
+    if (newPhone)   sessionStorage.setItem('assistpro_phone',   newPhone);
+    if (newCompany) sessionStorage.setItem('assistpro_company', newCompany);
+
+    showToast('Alterações salvas com sucesso!');
+  });
+
+  /* ── Encerrar conta ── */
+  function confirmDelete() {
+    if (confirm('Tem certeza que deseja encerrar sua conta? Esta ação não pode ser desfeita.')) {
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    }
+  }
+  window.confirmDelete = confirmDelete;
+
+  /* ── Logout ── */
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    sessionStorage.removeItem('assistpro_logged');
+    sessionStorage.removeItem('assistpro_user');
+    sessionStorage.removeItem('assistpro_email');
+    window.location.href = 'login.html';
+  });
+
+  /* ── Sidebar mobile ── */
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('sidebar-overlay');
+  const toggleBtn = document.getElementById('sidebar-toggle');
+
+  toggleBtn.addEventListener('click', () => {
+    const open = sidebar.classList.toggle('open');
+    overlay.classList.toggle('open', open);
+    toggleBtn.setAttribute('aria-expanded', String(open));
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  });
+</script>
+
+</body>
+</html>
